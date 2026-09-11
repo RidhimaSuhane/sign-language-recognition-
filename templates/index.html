@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Learning App for Deaf and Dumb</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: url('https://www.arschoolforthedeaf.org/wp-content/uploads/2024/05/Untitled-2024-05-31T150442.272-1024x576.jpg') no-repeat center center fixed;
+            background-size: cover;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: white;
+            position: relative;
+        }
+
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4); /* slightly lighter overlay */
+            z-index: 0;
+        }
+
+        .top-section {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .top-section h1 {
+            font-size: 42px;
+            margin: 0;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.7);
+        }
+
+        .bottom-section {
+            position: relative;
+            z-index: 1;
+            background: rgba(255, 255, 255, 0.0); /* more transparent */
+            padding: 30px 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            width: 350px;
+            margin: auto; /* center vertically & horizontally */
+            text-align: center;
+            color: #333;
+            top: 3%; 
+            transform: translateY(-50%);
+        }
+
+        input[type="email"], input[type="password"] {
+            width: 90%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+
+        button {
+            background: #66a6ff;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #557ce0;
+        }
+
+        #gesture-section {
+            display: none;
+            margin-top: 20px;
+        }
+
+        video {
+            border: 3px solid #66a6ff;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        #gesture {
+            font-size: 22px;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="top-section">
+        <h1>Learning App for Deaf and Dumb</h1>
+    </div>
+
+    <div class="bottom-section">
+        <div id="login-section">
+            <input type="email" id="email" placeholder="Email ID" required><br>
+            <input type="password" id="password" placeholder="Password" required><br>
+            <button onclick="login()">Login</button>
+            <p class="error" id="login-error"></p>
+        </div>
+
+        <div id="gesture-section">
+            <p id="gesture">Gesture: -</p>
+            <video id="webcam" autoplay width="300" height="225"></video>
+        </div>
+    </div>
+
+  <script>
+    function login() {
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+
+       if(email === "user@example.com" && password === "123456") {
+    window.location.href = "/capture"; // redirect to Flask route
+} else {
+            const loginError = document.getElementById("login-error");
+            loginError.textContent = "❌ Invalid Email or Password!";
+        }
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Gesture Capture - Learning App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: url('https://www.shutterstock.com/image-photo/smiling-happy-adorable-girl-sitting-260nw-1653376588.jpg')
+                        no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            position: relative;
+            color: white;
+        }
+
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 0;
+        }
+
+        /* 🔵 Logout Button Styling */
+        .logout-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #ff4747;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            z-index: 10;
+            transition: 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: #cc0000;
+        }
+
+        .capture-container {
+            position: relative;
+            z-index: 1;
+            background: rgba(255,255,255,0.25);
+            padding: 30px 40px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            width: 450px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.7);
+        }
+
+        video {
+            border: 3px solid #66a6ff;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        #gesture {
+            font-size: 24px;
+            margin-top: 10px;
+            font-weight: bold;
+            color: #fff;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- 🔵 LOGOUT BUTTON -->
+   <button class="logout-btn" onclick="logout()">Logout</button>
+
+<script>
+function logout() {
+    window.location.href = "/";  // ✔ Goes back to index.html via Flask
+}
+</script>
+
+    <div class="capture-container">
+        <h1>Gesture Capture</h1>
+        <p id="gesture">Gesture: -</p>
+        <video id="webcam" autoplay width="400" height="300"></video>
+    </div>
+
+    <script>
+        const webcam = document.getElementById("webcam");
+        const gestureText = document.getElementById("gesture");
+        const synth = window.speechSynthesis;
+        let lastGesture = "";
+
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => { webcam.srcObject = stream; })
+            .catch(err => console.error("Webcam error:", err));
+
+        async function captureFrame() {
+            const canvas = document.createElement("canvas");
+            canvas.width = webcam.videoWidth;
+            canvas.height = webcam.videoHeight;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(webcam, 0, 0, canvas.width, canvas.height);
+            const dataURL = canvas.toDataURL("image/jpeg");
+
+            try {
+                const response = await fetch("/predict?time=" + new Date().getTime(), {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ image: dataURL })
+                });
+
+                const result = await response.json();
+                gestureText.innerText = `Gesture: ${result.gesture} (${result.confidence}%)`;
+
+                if(result.gesture !== lastGesture && result.gesture !== "No hand detected") {
+                    const utter = new SpeechSynthesisUtterance(result.gesture);
+                    synth.speak(utter);
+                    lastGesture = result.gesture;
+                }
+
+            } catch(err) {
+                console.error("Backend error:", err);
+            }
+
+            setTimeout(captureFrame, 500);
+        }
+
+        captureFrame();
+    </script>
+</body>
+</html>
